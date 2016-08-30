@@ -24,10 +24,11 @@
  *  地图控件
  */
 @property (nonatomic,strong) MKMapView *mapView;
-
+/**
+ *  大头针
+ */
 @property (nonatomic,strong)  MKPointAnnotation *pointAnnotation;
 
-@property (weak, nonatomic) IBOutlet UIButton *btnLocation;
 @end
 
 @implementation ViewController
@@ -79,13 +80,16 @@
     //NSLocationWhenInUseUsageDescription 在使用应用期间
     //NSLocationAlwaysUsageDescription 始终
     [self.view addSubview:self.mapView];
+    if(![CLLocationManager locationServicesEnabled]||[CLLocationManager authorizationStatus]!=kCLAuthorizationStatusAuthorizedWhenInUse){
+        [_locationManager requestWhenInUseAuthorization];
+    }
     [self.locationManager startUpdatingLocation];
 
-    [self.view bringSubviewToFront:self.btnLocation];
 }
 #pragma mark -定位代理经纬度回调
 - (void)locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray<CLLocation *> *)locations
 {
+    [self.locationManager stopUpdatingLocation];
     CLLocation *newLocation = locations[0];
     CLLocationCoordinate2D oCoordinate = newLocation.coordinate;
     CLLocationCoordinate2D gcjPt = [JZLocationConverter wgs84ToGcj02:oCoordinate];
@@ -119,9 +123,5 @@
         }
     }];
 }
-- (IBAction)locationAction:(id)sender {
-    //开始定位
-    [self.locationManager startUpdatingLocation];
 
-}
 @end
